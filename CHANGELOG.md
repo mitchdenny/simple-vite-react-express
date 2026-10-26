@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Install shared application dependencies once through Aspire before Prisma migrations and API startup.
 - TypeScript Aspire AppHost for PostgreSQL, ordered Prisma migrations, Express, and Vite.
 - Reusable unpacked .NET template for Aspire directory/Git source generation.
 

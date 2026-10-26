@@ -6,10 +6,10 @@ const postgres = await builder.addPostgres('pg').withDataVolume();
 const database = await postgres.addDatabase('crm');
 const databaseUrl = await database.uriExpression();
 
-// All three processes share the root package; install once before starting Aspire.
+// Install the shared root package once, before generating Prisma or starting services.
 const migrations = await builder
   .addJavaScriptApp('migrations', '..', { runScriptName: 'db:deploy' })
-  .withNpm({ install: false })
+  .withNpm({ installCommand: 'ci' })
   .withEnvironment('DATABASE_URL', databaseUrl)
   .waitFor(database);
 

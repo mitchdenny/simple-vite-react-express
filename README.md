@@ -33,9 +33,6 @@ The default dashboard uses HTTPS; configure a trusted development certificate wi
 `aspire certs trust` if the machine does not already have one.
 
 ```bash
-npm ci
-npm ci --prefix aspire-apphost
-aspire restore --non-interactive
 aspire start --non-interactive --isolated --apphost aspire-apphost/apphost.mts
 aspire wait web --apphost aspire-apphost/apphost.mts
 aspire describe --apphost aspire-apphost/apphost.mts
@@ -47,8 +44,10 @@ The AppHost models `pg` (PostgreSQL with a data volume), `crm` (database),
 `migrations` (Prisma client generation and non-interactive migration deployment),
 `api` (Express with database-backed `/api/v1/health`), and `web` (Vite/React).
 The API waits for migrations to exit successfully; Vite waits for the healthy API.
-All Node resources share the root npm installation, so dependencies are installed once
-before starting instead of racing three installers.
+All Node resources share the root npm installation. Aspire runs one `npm ci` installer
+for `migrations` before generating Prisma or running migrations; the API and frontend
+reuse that installation instead of racing three installers. The CLI restores the
+AppHost's own dependencies, so a fresh generated copy needs no manual npm installation.
 
 Aspire supplies a PostgreSQL URI as `DATABASE_URL`, the API's endpoint as Vite's
 `API_URL`, and Vite's endpoint as the API's `FRONTEND_URL`. Existing standalone
@@ -99,16 +98,14 @@ Then use the run commands above from the generated directory:
 
 ```bash
 cd MyCrm
-npm ci
-npm ci --prefix aspire-apphost
-aspire restore --non-interactive
 aspire start --non-interactive --isolated --apphost aspire-apphost/apphost.mts
 aspire wait web --apphost aspire-apphost/apphost.mts
 aspire describe --apphost aspire-apphost/apphost.mts
 ```
 
 Template post-actions/scripts are not executed: generation does not install npm
-dependencies or run database migrations. Startup runs the modeled migration resource.
+dependencies or run database migrations. Startup runs the single shared npm installer,
+then the modeled migration resource, before starting the API and frontend.
 The template excludes Git metadata, dependency/build/cache directories, generated
 Aspire state, `.env` secrets, and its own authoring metadata. It retains `example.env`,
 both npm lockfiles, migrations, source, tests, licensing, and project-local Aspire skills.
