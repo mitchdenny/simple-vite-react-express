@@ -1,0 +1,25 @@
+{
+  "symbolInfo": {
+    "AspireVersion": {
+      "isHidden": true
+    },
+    "JavaScriptVersion": {
+      "displayName": "JavaScript hosting integration version",
+      "valueSource": {
+        "kind": "nugetPackageVersion",
+        "packageId": "Aspire.Hosting.JavaScript",
+        "versionRange": "*-*",
+        "allowPrerelease": true
+      }
+    },
+    "PostgreSQLVersion": {
+      "displayName": "PostgreSQL hosting integration version",
+      "valueSource": {
+        "kind": "nugetPackageVersion",
+        "packageId": "Aspire.Hosting.PostgreSQL",
+        "versionRange": "*-*",
+        "allowPrerelease": true
+      }
+    }
+  }
+}

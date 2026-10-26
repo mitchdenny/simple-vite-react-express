@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- TypeScript Aspire AppHost for PostgreSQL, ordered Prisma migrations, Express, and Vite.
+- Reusable unpacked .NET template for Aspire directory/Git source generation.
+
+### Changed
+
+- Preserve standalone npm development while supporting dynamic Aspire API and frontend endpoints.
+
 ## [2.2.0] - 2026-10-06
 
 ### Added

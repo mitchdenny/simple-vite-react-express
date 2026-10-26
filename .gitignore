@@ -31,3 +31,6 @@ Thumbs.db
 # AI agent local config
 .gemini/
 .claude/settings.local.json
+
+# Aspire machine-local integrations, generated SDK and run state
+.aspire/

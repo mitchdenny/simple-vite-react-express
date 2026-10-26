@@ -42,6 +42,8 @@ const config = {
    */
   port: parseInt(getEnv('PORT', '8080'), 10),
 
+  frontendUrl: getEnv('FRONTEND_URL', 'http://localhost:3000'),
+
   /**
    * Node environment
    * Values: 'development', 'production', 'test'

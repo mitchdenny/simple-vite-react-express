@@ -74,7 +74,7 @@ app.use('/api', apiNotFound);
 app.get('/', (req, res) => {
   if (config.isDevelopment) {
     // In development, redirect to Vite dev server
-    res.redirect('http://localhost:3000');
+    res.redirect(config.frontendUrl);
   } else {
     // In production, serve the built index.html
     res.sendFile(path.resolve('dist', 'index.html'));

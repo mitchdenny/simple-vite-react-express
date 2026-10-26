@@ -23,11 +23,11 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
+    open: process.env.BROWSER !== "none",
     strictPort: true,
     proxy: {
-      "/api": `http://localhost:${process.env.PORT}`,
-      "/auth": `http://localhost:${process.env.PORT}`,
+      "/api": process.env.API_URL || `http://localhost:${process.env.PORT || 8080}`,
+      "/auth": process.env.API_URL || `http://localhost:${process.env.PORT || 8080}`,
     },
   },
   preview: {

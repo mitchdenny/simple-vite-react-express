@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "mitchdenny",
+  "identity": "MitchDenny.Aspire.ReactExpress",
+  "name": "Aspire React Express CRM",
+  "shortName": "aspire-react-express",
+  "classifications": ["Aspire", "Web", "React", "Express", "PostgreSQL"],
+  "tags": {
+    "language": "TypeScript",
+    "type": "project"
+  },
+  "sourceName": "AspireCrm",
+  "preferNameDirectory": true,
+  "symbols": {
+    "AspireVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "13.6.4",
+      "description": "Aspire SDK version (the Aspire CLI supplies its SDK identity).",
+      "replaces": "13.6.4",
+      "onlyIf": [{ "after": "\"version\": \"" }]
+    },
+    "JavaScriptVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "13.6.4",
+      "description": "Aspire.Hosting.JavaScript integration version.",
+      "replaces": "13.6.4",
+      "onlyIf": [{ "after": "\"Aspire.Hosting.JavaScript\": \"" }]
+    },
+    "PostgreSQLVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "13.6.4",
+      "description": "Aspire.Hosting.PostgreSQL integration version.",
+      "replaces": "13.6.4",
+      "onlyIf": [{ "after": "\"Aspire.Hosting.PostgreSQL\": \"" }]
+    }
+  },
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        ".git",
+        "**/.git/**",
+        ".template.config/**",
+        "**/node_modules/**",
+        "**/.aspire/**",
+        "**/dist/**",
+        "**/coverage/**",
+        "**/.nyc_output/**",
+        "**/.cache/**",
+        "**/bin/**",
+        "**/obj/**",
+        "**/.env",
+        "**/.env.*",
+        "**/*.log",
+        "**/.DS_Store",
+        "**/.eslintcache",
+        "**/*.user",
+        "**/*.suo",
+        ".claude/settings.local.json"
+      ]
+    }
+  ]
+}

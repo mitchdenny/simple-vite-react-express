@@ -23,6 +23,136 @@ forms with validation, and a clean layered structure you can read in an afternoo
 
 ## Quick Start
 
+### AspireCrm: run with Aspire
+
+This fork adds a **TypeScript AppHost**, not a rewrite of the JavaScript application.
+Use Node.js 22.13+ (or 24+), npm, Docker with Linux containers, the .NET 10 SDK,
+and an Aspire CLI supporting TypeScript AppHosts. The authored SDK and integration
+defaults are **13.6.4**.
+The default dashboard uses HTTPS; configure a trusted development certificate with
+`aspire certs trust` if the machine does not already have one.
+
+```bash
+npm ci
+npm ci --prefix aspire-apphost
+aspire restore --non-interactive
+aspire start --non-interactive --isolated --apphost aspire-apphost/apphost.mts
+aspire wait web --apphost aspire-apphost/apphost.mts
+aspire describe --apphost aspire-apphost/apphost.mts
+```
+
+Open the `web` URL reported by `aspire describe` or the dashboard. Ports are assigned
+dynamically; no `.env`, manually created database, or `db:setup` is needed for Aspire.
+The AppHost models `pg` (PostgreSQL with a data volume), `crm` (database),
+`migrations` (Prisma client generation and non-interactive migration deployment),
+`api` (Express with database-backed `/api/v1/health`), and `web` (Vite/React).
+The API waits for migrations to exit successfully; Vite waits for the healthy API.
+All Node resources share the root npm installation, so dependencies are installed once
+before starting instead of racing three installers.
+
+Aspire supplies a PostgreSQL URI as `DATABASE_URL`, the API's endpoint as Vite's
+`API_URL`, and Vite's endpoint as the API's `FRONTEND_URL`. Existing standalone
+scripts and `.env` settings remain supported. Aspire suppresses Vite's automatic
+browser opening. Application logs appear in the dashboard; additional application
+OpenTelemetry instrumentation is not included.
+
+```bash
+aspire logs api --apphost aspire-apphost/apphost.mts
+aspire stop --non-interactive --apphost aspire-apphost/apphost.mts
+```
+
+Stopping preserves the database volume. Keep the AppHost's local secret storage with
+that volume: resetting secrets or changing SDK/secret-store identity can produce a new
+password that does not match an existing volume. Do not delete a volume containing
+data you need. `.aspire/` and `aspire-apphost/.aspire/modules/` are generated/local
+state, never template inputs or hand-edited source.
+
+### Stamp out a new application
+
+The repository root is one **unpacked .NET template**, described by
+`.template.config/template.json`; this is not just a GitHub repository template.
+Directory and Git sources require the feature CLI from
+[microsoft/aspire#21263](https://github.com/microsoft/aspire/pull/21263), or a later CLI
+whose `aspire new --help` lists `--template-path` and `--template-repository`.
+The CLI used for this proof of concept is `17.0.0-pr.21263.gdb30e07c`.
+The installed daily CLI `17.0.0-preview.1.26520.10` does **not** have those flags.
+Use the feature executable as `aspire` for the following generation commands.
+
+From a local checkout:
+
+```bash
+aspire new --template-path /absolute/path/to/simple-vite-react-express \
+  --name MyCrm --output ./MyCrm --suppress-agent-init --non-interactive
+```
+
+Or from this fork (replace the branch ref with a full commit SHA for reproducibility):
+
+```bash
+aspire new \
+  --template-repository https://github.com/mitchdenny/simple-vite-react-express \
+  --template-repository-ref mitchdenny-react-express-aspire-template \
+  --template-path . --name MyCrm --output ./MyCrm \
+  --suppress-agent-init --non-interactive
+```
+
+Then use the run commands above from the generated directory:
+
+```bash
+cd MyCrm
+npm ci
+npm ci --prefix aspire-apphost
+aspire restore --non-interactive
+aspire start --non-interactive --isolated --apphost aspire-apphost/apphost.mts
+aspire wait web --apphost aspire-apphost/apphost.mts
+aspire describe --apphost aspire-apphost/apphost.mts
+```
+
+Template post-actions/scripts are not executed: generation does not install npm
+dependencies or run database migrations. Startup runs the modeled migration resource.
+The template excludes Git metadata, dependency/build/cache directories, generated
+Aspire state, `.env` secrets, and its own authoring metadata. It retains `example.env`,
+both npm lockfiles, migrations, source, tests, licensing, and project-local Aspire skills.
+The name changes the generated directory and `AspireCrm` documentation label; npm
+package identifiers deliberately remain unchanged, so names such as `MyCrm` do not
+introduce invalid uppercase npm names or broken imports.
+
+`AspireVersion` is a string parameter with an authored `13.6.4` default. The custom-source
+CLI supplies its actual SDK identity, including PR suffixes. `JavaScriptVersion` and
+`PostgreSQLVersion` independently select integration package versions from the effective
+NuGet feeds; they must not inherit the CLI's SDK version blindly. Each symbol replaces
+only its corresponding JSON value in `aspire.config.json`. Host metadata permits
+prereleases and uses the unrestricted `*-*` version range for those integration choices.
+This pure TypeScript AppHost has no user-authored .NET restore consumers and does not
+request a root `NuGet.config`.
+
+For local PR builds, set `ASPIRE_CLI_PACKAGES` to the matching shipping-package directory
+when invoking the feature CLI. This explicitly selects the CLI SDK identity and makes
+that directory an identity package source; it is not `--source`. Also enable the local
+feed in the effective NuGet configuration used for integration selection and restore.
+For example, with an existing isolated NuGet configuration:
+
+```bash
+export ASPIRE_CLI_PACKAGES=/absolute/path/to/matching/Shipping
+dotnet nuget add source "$ASPIRE_CLI_PACKAGES" --name aspire-pr \
+  --configfile /absolute/path/to/isolated/NuGet.Config
+```
+
+Use that configuration through the validation user's home or another standard NuGet
+configuration discovery location. Generated PR SDK identities need their matching
+packages available at restore/start time too. Do not use
+`--source`, `--version`, `--channel`, or `--language` with custom-template sources:
+the feature rejects those combinations. No machine-local package path is embedded in
+the generated application.
+
+Ordinary .NET template tooling can use the stable authored defaults:
+
+```bash
+dotnet new install /absolute/path/to/simple-vite-react-express
+dotnet new aspire-react-express --name MyCrm --output ./MyCrm
+```
+
+### Standalone development (without Aspire)
+
 You need **Node.js 22+** and a running **PostgreSQL** ([no Postgres? see options](docs/getting-started.md#1-prerequisites)).
 
 ```bash
