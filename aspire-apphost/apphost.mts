@@ -13,6 +13,12 @@ const migrations = await builder
   .withEnvironment('DATABASE_URL', databaseUrl)
   .waitFor(database);
 
+const seed = await builder
+  .addJavaScriptApp('seed', '..', { runScriptName: 'db:seed' })
+  .withNpm({ install: false })
+  .withEnvironment('DATABASE_URL', databaseUrl)
+  .waitForCompletion(migrations);
+
 const api = await builder
   .addJavaScriptApp('api', '..', { runScriptName: 'server' })
   .withNpm({ install: false })
@@ -20,7 +26,7 @@ const api = await builder
   .withEnvironment('DATABASE_URL', databaseUrl)
   .withHttpEndpoint({ env: 'PORT' })
   .withHttpHealthCheck({ path: '/api/v1/health' })
-  .waitForCompletion(migrations);
+  .waitForCompletion(seed);
 
 const web = await builder
   .addViteApp('web', '..', { runScriptName: 'client' })

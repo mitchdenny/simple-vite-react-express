@@ -42,10 +42,14 @@ Open the `web` URL reported by `aspire describe` or the dashboard. Ports are ass
 dynamically; no `.env`, manually created database, or `db:setup` is needed for Aspire.
 The AppHost models `pg` (PostgreSQL with a data volume), `crm` (database),
 `migrations` (Prisma client generation and non-interactive migration deployment),
+`seed` (the existing `db:seed` sample-data script),
 `api` (Express with database-backed `/api/v1/health`), and `web` (Vite/React).
-The API waits for migrations to exit successfully; Vite waits for the healthy API.
+Seeding waits for migrations to exit successfully; the API waits for seeding to
+succeed, and Vite waits for the healthy API. A new database gets sample contacts,
+projects, memberships, and tasks. The existing seed script skips a database that
+already has contacts, so ordinary restarts do not duplicate demo data.
 All Node resources share the root npm installation. Aspire runs one `npm ci` installer
-for `migrations` before generating Prisma or running migrations; the API and frontend
+for `migrations` before generating Prisma or running migrations; seeding, the API, and the frontend
 reuse that installation instead of racing three installers. The CLI restores the
 AppHost's own dependencies, so a fresh generated copy needs no manual npm installation.
 
@@ -105,7 +109,7 @@ aspire describe --apphost aspire-apphost/apphost.mts
 
 Template post-actions/scripts are not executed: generation does not install npm
 dependencies or run database migrations. Startup runs the single shared npm installer,
-then the modeled migration resource, before starting the API and frontend.
+then migrations and seeding, before starting the API and frontend.
 The template excludes Git metadata, dependency/build/cache directories, generated
 Aspire state, `.env` secrets, and its own authoring metadata. It retains `example.env`,
 both npm lockfiles, migrations, source, tests, licensing, and project-local Aspire skills.
